@@ -1,0 +1,926 @@
+<template>
+    <lightning-card title="OKR Dashboard" icon-name="standard:goal">
+        <div class="custom-header">
+            <div class="custom-header-left">
+                <lightning-combobox name="year" label="Change year" value={year} placeholder="Select Year"
+                                    options={yearOptions} onchange={handleYearChange} class="custom-combobox"></lightning-combobox>
+                <lightning-combobox name="user" label="Select a user" value={selectedUser} placeholder="Select User"
+                                    options={userOptions} onchange={handleUserChange} class="custom-combobox"></lightning-combobox>
+            </div>
+            <div class="custom-header-right">
+                <lightning-button-menu alternative-text="Actions Menu" icon-name="utility:down" label="Actions" class="custom-button-menu">
+                    <lightning-menu-item label="New Objective" onclick={openNewObjectiveModal}></lightning-menu-item>
+                    <lightning-menu-item label="New Key Result" onclick={openSelectObjectiveModal}></lightning-menu-item>
+                    <lightning-menu-item label="New Opportunity" onclick={openSelectObjectiveForOpportunityModal}></lightning-menu-item>
+                    <lightning-menu-item label="New Review" onclick={openSelectObjectiveForReviewModal}></lightning-menu-item>
+                    <lightning-menu-item label="New Lead" onclick={openSelectObjectiveForLeadModal}></lightning-menu-item>
+                    <lightning-menu-item label="New Google Review" onclick={openSelectObjectiveForGoogleReviewModal}></lightning-menu-item>
+                    <lightning-menu-item label="New Event" onclick={openSelectObjectiveForEventModal}></lightning-menu-item>
+                    <lightning-menu-item label="New Contract" onclick={openSelectObjectiveForContractModal}></lightning-menu-item>
+                    <lightning-menu-item label="New Survey" onclick={openSelectObjectiveForSurveyModal}></lightning-menu-item>
+                    <lightning-menu-item label="New Case Study" onclick={openSelectObjectiveForCaseStudyModal}></lightning-menu-item>
+                    <lightning-menu-item label="New Call" onclick={openSelectObjectiveForCallModal}></lightning-menu-item>
+                </lightning-button-menu>
+            </div>
+        </div>
+        <div class="custom-padding">
+            <template if:true={objectives}>
+                <div class="objectives-container">
+                    <template for:each={objectives} for:item="objective">
+                        <div key={objective.Id} class="objective-card">
+                            <div class="objective-header">
+                                <h2>{objective.Name}</h2>
+                            </div>
+                            <div class="objective-body">
+                                <template if:true={objective.keyResults}>
+                                    <template for:each={objective.keyResults} for:item="keyResult">
+                                        <div key={keyResult.Id} class="key-result-card">
+                                            <h3 class="key-result-name">{keyResult.Name}</h3>
+                                            <template if:false={keyResult.hideLeads}>
+                                                <div class="trackable-object">
+                                                    <p>Leads: {keyResult.Lead_Completed__c} / {keyResult.Lead_Target__c}</p>
+                                                </div>
+                                            </template>
+                                            <template if:false={keyResult.hideOpportunities}>
+                                                <div class="trackable-object">
+                                                    <p>Opportunities: {keyResult.Opportunity_Completed__c} / {keyResult.Opportunity_Target__c}</p>
+                                                </div>
+                                            </template>
+                                            <template if:false={keyResult.hideReviews}>
+                                                <div class="trackable-object">
+                                                    <p>Reviews: {keyResult.Review_Completed__c} / {keyResult.Review_Target__c}</p>
+                                                </div>
+                                            </template>
+                                            <template if:false={keyResult.hideGoogleReviews}>
+                                                <div class="trackable-object">
+                                                    <p>Google Reviews: {keyResult.Google_Review_Completed__c} / {keyResult.Google_Review_Target__c}</p>
+                                                </div>
+                                            </template>
+                                            <template if:false={keyResult.hideCaseStudies}>
+                                                <div class="trackable-object">
+                                                    <p>Case Studies: {keyResult.Case_Study_Completed__c} / {keyResult.Case_Study_Target__c}</p>
+                                                </div>
+                                            </template>
+                                            <template if:false={keyResult.hideSurveys}>
+                                                <div class="trackable-object">
+                                                    <p>Surveys: {keyResult.Survey_Completed__c} / {keyResult.Survey_Target__c}</p>
+                                                </div>
+                                            </template>
+                                            <template if:false={keyResult.hideContracts}>
+                                                <div class="trackable-object">
+                                                    <p>Contracts: {keyResult.Contract_Completed__c} / {keyResult.Contract_Target__c}</p>
+                                                </div>
+                                            </template>
+                                            <template if:false={keyResult.hideCalls}>
+                                                <div class="trackable-object">
+                                                    <p>Calls: {keyResult.Call_Completed__c} / {keyResult.Call_Target__c}</p>
+                                                </div>
+                                            </template>
+                                            <template if:false={keyResult.hideEvents}>
+                                                <div class="trackable-object">
+                                                    <p>Events: {keyResult.Event_Completed__c} / {keyResult.Event_Target__c}</p>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+
+
+    <!-- Modals for existing objects -->
+    <template if:true={isSelectObjectiveModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeSelectObjectiveModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Select Objective</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-combobox name="objective" label="Select Objective" value={selectedObjectiveId} placeholder="Select Objective"
+                                        options={objectiveOptions} onchange={handleObjectiveChange}></lightning-combobox>
+                </div>
+                <footer class="slds-modal__footer custom-modal-footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={closeSelectObjectiveModal}></lightning-button>
+                    <lightning-button variant="brand" label="Next" onclick={handleNewKeyResult}></lightning-button>
+                </footer>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+    <template if:true={isSelectObjectiveForOpportunityModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeSelectObjectiveForOpportunityModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Select Objective</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-combobox name="objective" label="Select Objective" value={selectedObjectiveId} placeholder="Select Objective"
+                                        options={objectiveOptions} onchange={handleObjectiveChange}></lightning-combobox>
+                </div>
+                <footer class="slds-modal__footer custom-modal-footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={closeSelectObjectiveForOpportunityModal}></lightning-button>
+                    <lightning-button variant="brand" label="Next" onclick={openSelectKeyResultForOpportunityModal}></lightning-button>
+                </footer>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+    <template if:true={isSelectKeyResultForOpportunityModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeSelectKeyResultForOpportunityModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Select Key Result</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-combobox name="keyResult" label="Select Key Result" value={selectedKeyResultId} placeholder="Select Key Result"
+                                        options={keyResultOptions} onchange={handleKeyResultChange}></lightning-combobox>
+                </div>
+                <footer class="slds-modal__footer custom-modal-footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={closeSelectKeyResultForOpportunityModal}></lightning-button>
+                    <lightning-button variant="brand" label="Next" onclick={handleNewOpportunity}></lightning-button>
+                </footer>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+    <template if:true={isSelectObjectiveForReviewModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeSelectObjectiveForReviewModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Select Objective</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-combobox name="objective" label="Select Objective" value={selectedObjectiveId} placeholder="Select Objective"
+                                        options={objectiveOptions} onchange={handleObjectiveChange}></lightning-combobox>
+                </div>
+                <footer class="slds-modal__footer custom-modal-footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={closeSelectObjectiveForReviewModal}></lightning-button>
+                    <lightning-button variant="brand" label="Next" onclick={openSelectKeyResultForReviewModal}></lightning-button>
+                </footer>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+    <template if:true={isSelectKeyResultForReviewModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeSelectKeyResultForReviewModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Select Key Result</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-combobox name="keyResult" label="Select Key Result" value={selectedKeyResultId} placeholder="Select Key Result"
+                                        options={keyResultOptions} onchange={handleKeyResultChange}></lightning-combobox>
+                </div>
+                <footer class="slds-modal__footer custom-modal-footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={closeSelectKeyResultForReviewModal}></lightning-button>
+                    <lightning-button variant="brand" label="Next" onclick={handleNewReview}></lightning-button>
+                </footer>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+
+    
+    <!-- Modals for new objects -->
+    <template if:true={isSelectObjectiveForLeadModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeSelectObjectiveForLeadModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Select Objective</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-combobox name="objective" label="Select Objective" value={selectedObjectiveId} placeholder="Select Objective"
+                                        options={objectiveOptions} onchange={handleObjectiveChange}></lightning-combobox>
+                </div>
+                <footer class="slds-modal__footer custom-modal-footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={closeSelectObjectiveForLeadModal}></lightning-button>
+                    <lightning-button variant="brand" label="Next" onclick={openSelectKeyResultForLeadModal}></lightning-button>
+                </footer>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+    
+    <template if:true={isSelectKeyResultForLeadModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeSelectKeyResultForLeadModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Select Key Result</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-combobox name="keyResult" label="Select Key Result" value={selectedKeyResultId} placeholder="Select Key Result"
+                                        options={keyResultOptions} onchange={handleKeyResultChange}></lightning-combobox>
+                </div>
+                <footer class="slds-modal__footer custom-modal-footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={closeSelectKeyResultForLeadModal}></lightning-button>
+                    <lightning-button variant="brand" label="Next" onclick={handleNewLead}></lightning-button>
+                </footer>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+    <template if:true={isSelectObjectiveForGoogleReviewModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeSelectObjectiveForGoogleReviewModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Select Objective</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-combobox name="objective" label="Select Objective" value={selectedObjectiveId} placeholder="Select Objective"
+                                        options={objectiveOptions} onchange={handleObjectiveChange}></lightning-combobox>
+                </div>
+                <footer class="slds-modal__footer custom-modal-footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={closeSelectObjectiveForGoogleReviewModal}></lightning-button>
+                    <lightning-button variant="brand" label="Next" onclick={openSelectKeyResultForGoogleReviewModal}></lightning-button>
+                </footer>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+    
+    <template if:true={isSelectKeyResultForGoogleReviewModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeSelectKeyResultForGoogleReviewModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Select Key Result</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-combobox name="keyResult" label="Select Key Result" value={selectedKeyResultId} placeholder="Select Key Result"
+                                        options={keyResultOptions} onchange={handleKeyResultChange}></lightning-combobox>
+                </div>
+                <footer class="slds-modal__footer custom-modal-footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={closeSelectKeyResultForGoogleReviewModal}></lightning-button>
+                    <lightning-button variant="brand" label="Next" onclick={handleNewGoogleReview}></lightning-button>
+                </footer>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+
+    <template if:true={isSelectObjectiveForEventModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeSelectObjectiveForEventModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Select Objective</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-combobox name="objective" label="Select Objective" value={selectedObjectiveId} placeholder="Select Objective"
+                                        options={objectiveOptions} onchange={handleObjectiveChange}></lightning-combobox>
+                </div>
+                <footer class="slds-modal__footer custom-modal-footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={closeSelectObjectiveForEventModal}></lightning-button>
+                    <lightning-button variant="brand" label="Next" onclick={openSelectKeyResultForEventModal}></lightning-button>
+                </footer>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+    <template if:true={isSelectKeyResultForEventModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeSelectKeyResultForEventModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Select Key Result</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-combobox name="keyResult" label="Select Key Result" value={selectedKeyResultId} placeholder="Select Key Result"
+                                        options={keyResultOptions} onchange={handleKeyResultChange}></lightning-combobox>
+                </div>
+                <footer class="slds-modal__footer custom-modal-footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={closeSelectKeyResultForEventModal}></lightning-button>
+                    <lightning-button variant="brand" label="Next" onclick={handleNewEvent}></lightning-button>
+                </footer>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+
+    <template if:true={isSelectObjectiveForContractModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeSelectObjectiveForContractModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Select Objective</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-combobox name="objective" label="Select Objective" value={selectedObjectiveId} placeholder="Select Objective"
+                                        options={objectiveOptions} onchange={handleObjectiveChange}></lightning-combobox>
+                </div>
+                <footer class="slds-modal__footer custom-modal-footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={closeSelectObjectiveForContractModal}></lightning-button>
+                    <lightning-button variant="brand" label="Next" onclick={openSelectKeyResultForContractModal}></lightning-button>
+                </footer>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+    <template if:true={isSelectKeyResultForContractModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeSelectKeyResultForContractModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Select Key Result</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-combobox name="keyResult" label="Select Key Result" value={selectedKeyResultId} placeholder="Select Key Result"
+                                        options={keyResultOptions} onchange={handleKeyResultChange}></lightning-combobox>
+                </div>
+                <footer class="slds-modal__footer custom-modal-footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={closeSelectKeyResultForContractModal}></lightning-button>
+                    <lightning-button variant="brand" label="Next" onclick={handleNewContract}></lightning-button>
+                </footer>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+    
+    <template if:true={isSelectObjectiveForSurveyModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeSelectObjectiveForSurveyModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Select Objective</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-combobox name="objective" label="Select Objective" value={selectedObjectiveId} placeholder="Select Objective"
+                                        options={objectiveOptions} onchange={handleObjectiveChange}></lightning-combobox>
+                </div>
+                <footer class="slds-modal__footer custom-modal-footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={closeSelectObjectiveForSurveyModal}></lightning-button>
+                    <lightning-button variant="brand" label="Next" onclick={openSelectKeyResultForSurveyModal}></lightning-button>
+                </footer>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+    <template if:true={isSelectKeyResultForSurveyModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeSelectKeyResultForSurveyModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Select Key Result</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-combobox name="keyResult" label="Select Key Result" value={selectedKeyResultId} placeholder="Select Key Result"
+                                        options={keyResultOptions} onchange={handleKeyResultChange}></lightning-combobox>
+                </div>
+                <footer class="slds-modal__footer custom-modal-footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={closeSelectKeyResultForSurveyModal}></lightning-button>
+                    <lightning-button variant="brand" label="Next" onclick={handleNewSurvey}></lightning-button>
+                </footer>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+    
+    <template if:true={isSelectObjectiveForCaseStudyModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeSelectObjectiveForCaseStudyModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Select Objective</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-combobox name="objective" label="Select Objective" value={selectedObjectiveId} placeholder="Select Objective"
+                                        options={objectiveOptions} onchange={handleObjectiveChange}></lightning-combobox>
+                </div>
+                <footer class="slds-modal__footer custom-modal-footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={closeSelectObjectiveForCaseStudyModal}></lightning-button>
+                    <lightning-button variant="brand" label="Next" onclick={openSelectKeyResultForCaseStudyModal}></lightning-button>
+                </footer>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+    <template if:true={isSelectKeyResultForCaseStudyModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeSelectKeyResultForCaseStudyModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Select Key Result</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-combobox name="keyResult" label="Select Key Result" value={selectedKeyResultId} placeholder="Select Key Result"
+                                        options={keyResultOptions} onchange={handleKeyResultChange}></lightning-combobox>
+                </div>
+                <footer class="slds-modal__footer custom-modal-footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={closeSelectKeyResultForCaseStudyModal}></lightning-button>
+                    <lightning-button variant="brand" label="Next" onclick={handleNewCaseStudy}></lightning-button>
+                </footer>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+    
+    <template if:true={isSelectObjectiveForCallModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeSelectObjectiveForCallModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Select Objective</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-combobox name="objective" label="Select Objective" value={selectedObjectiveId} placeholder="Select Objective"
+                                        options={objectiveOptions} onchange={handleObjectiveChange}></lightning-combobox>
+                </div>
+                <footer class="slds-modal__footer custom-modal-footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={closeSelectObjectiveForCallModal}></lightning-button>
+                    <lightning-button variant="brand" label="Next" onclick={openSelectKeyResultForCallModal}></lightning-button>
+                </footer>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+    <template if:true={isSelectKeyResultForCallModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeSelectKeyResultForCallModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">Select Key Result</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-combobox name="keyResult" label="Select Key Result" value={selectedKeyResultId} placeholder="Select Key Result"
+                                        options={keyResultOptions} onchange={handleKeyResultChange}></lightning-combobox>
+                </div>
+                <footer class="slds-modal__footer custom-modal-footer">
+                    <lightning-button variant="neutral" label="Cancel" onclick={closeSelectKeyResultForCallModal}></lightning-button>
+                    <lightning-button variant="brand" label="Next" onclick={handleNewCall}></lightning-button>
+                </footer>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+    <template if:true={isNewObjectiveModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeNewObjectiveModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">New Objective</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-record-edit-form object-api-name="Objective__c" onsuccess={handleObjectiveSuccess}>
+                        <lightning-messages></lightning-messages>
+                        <lightning-input-field field-name="Name"></lightning-input-field>
+                        <lightning-input-field field-name="Year__c"></lightning-input-field>
+                        <lightning-input-field field-name="Assigned_User__c"></lightning-input-field>
+                        <div class="slds-m-top_medium">
+                            <lightning-button variant="neutral" label="Cancel" onclick={closeNewObjectiveModal}></lightning-button>
+                            <lightning-button variant="brand" type="submit" label="Save"></lightning-button>
+                        </div>
+                    </lightning-record-edit-form>
+                </div>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+    
+    <template if:true={isNewObjectiveModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeNewObjectiveModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">New Objective</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-record-edit-form object-api-name="Objective__c" onsuccess={handleObjectiveSuccess}>
+                        <lightning-messages></lightning-messages>
+                        <lightning-input-field field-name="Name"></lightning-input-field>
+                        <lightning-input-field field-name="Year__c"></lightning-input-field>
+                        <lightning-input-field field-name="Assigned_User__c"></lightning-input-field>
+                        <div class="slds-m-top_medium">
+                            <lightning-button variant="neutral" label="Cancel" onclick={closeNewObjectiveModal}></lightning-button>
+                            <lightning-button variant="brand" type="submit" label="Save"></lightning-button>
+                        </div>
+                    </lightning-record-edit-form>
+                </div>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+
+    <template if:true={isNewKeyResultModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeNewKeyResultModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">New Key Result</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-record-edit-form object-api-name="Key_Result__c" onsuccess={handleKeyResultSuccess}>
+                        <lightning-messages></lightning-messages>
+                        <lightning-input-field field-name="Name"></lightning-input-field>
+                        <lightning-input-field field-name="Objective__c" value={selectedObjectiveId}></lightning-input-field>
+                        <lightning-input-field field-name="Trackable_Objects__c"></lightning-input-field>
+                        <lightning-input-field field-name="Lead_Target__c"></lightning-input-field>
+                        <lightning-input-field field-name="Lead_Completed__c"></lightning-input-field>
+                        <lightning-input-field field-name="Opportunity_Target__c"></lightning-input-field>
+                        <lightning-input-field field-name="Opportunity_Completed__c"></lightning-input-field>
+                        <lightning-input-field field-name="Review_Target__c"></lightning-input-field>
+                        <lightning-input-field field-name="Review_Completed__c"></lightning-input-field>
+                        <lightning-input-field field-name="Google_Review_Target__c"></lightning-input-field>
+                        <lightning-input-field field-name="Google_Review_Completed__c"></lightning-input-field>
+                        <lightning-input-field field-name="Case_Study_Target__c"></lightning-input-field>
+                        <lightning-input-field field-name="Case_Study_Completed__c"></lightning-input-field>
+                        <lightning-input-field field-name="Survey_Target__c"></lightning-input-field>
+                        <lightning-input-field field-name="Survey_Completed__c"></lightning-input-field>
+                        <lightning-input-field field-name="Contract_Target__c"></lightning-input-field>
+                        <lightning-input-field field-name="Contract_Completed__c"></lightning-input-field>
+                        <lightning-input-field field-name="Call_Target__c"></lightning-input-field>
+                        <lightning-input-field field-name="Call_Completed__c"></lightning-input-field>
+                        <lightning-input-field field-name="Event_Target__c"></lightning-input-field>
+                        <lightning-input-field field-name="Event_Completed__c"></lightning-input-field>
+                        <div class="slds-m-top_medium">
+                            <lightning-button variant="neutral" label="Cancel" onclick={closeNewKeyResultModal}></lightning-button>
+                            <lightning-button variant="brand" type="submit" label="Save"></lightning-button>
+                        </div>
+                    </lightning-record-edit-form>
+                </div>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+   
+    <template if:true={isNewOpportunityModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeNewOpportunityModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">New Opportunity</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-record-edit-form object-api-name="Opportunity" onsuccess={handleOpportunitySuccess}>
+                        <lightning-messages></lightning-messages>
+                        <lightning-input-field field-name="Name"></lightning-input-field>
+                        <lightning-input-field field-name="Key_Result__c" value={selectedKeyResultId}></lightning-input-field>
+                        <lightning-input-field field-name="CloseDate"></lightning-input-field>
+                        <lightning-input-field field-name="StageName"></lightning-input-field>
+                        <lightning-input-field field-name="Amount"></lightning-input-field>
+                        <lightning-input-field field-name="AccountId"></lightning-input-field>
+                        <lightning-input-field field-name="OwnerId"></lightning-input-field>
+                        <lightning-input-field field-name="Probability"></lightning-input-field>
+                        <lightning-input-field field-name="Type"></lightning-input-field>
+                        
+                        <div class="slds-m-top_medium">
+                            <lightning-button variant="neutral" label="Cancel" onclick={closeNewOpportunityModal}></lightning-button>
+                            <lightning-button variant="brand" type="submit" label="Save"></lightning-button>
+                        </div>
+                    </lightning-record-edit-form>
+                </div>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+    
+    <template if:true={isNewReviewModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeNewReviewModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">New Review</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-record-edit-form object-api-name="Review__c" onsuccess={handleReviewSuccess}>
+                        <lightning-messages></lightning-messages>
+                        <lightning-input-field field-name="Name"></lightning-input-field>
+                        <lightning-input-field field-name="Key_Result__c" value={selectedKeyResultId}></lightning-input-field>
+                        <lightning-input-field field-name="Review_Details__c"></lightning-input-field>
+                        <lightning-input-field field-name="Rating__c"></lightning-input-field>
+                        <div class="slds-m-top_medium">
+                            <lightning-button variant="neutral" label="Cancel" onclick={closeNewReviewModal}></lightning-button>
+                            <lightning-button variant="brand" type="submit" label="Save"></lightning-button>
+                        </div>
+                    </lightning-record-edit-form>
+                </div>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+    
+    <template if:true={isNewLeadModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeNewLeadModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">New Lead</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-record-edit-form object-api-name="Lead" onsuccess={handleLeadSuccess}>
+                        <lightning-messages></lightning-messages>
+                        <lightning-input-field field-name="Name"></lightning-input-field>
+                        <lightning-input-field field-name="Key_Result__c" value={selectedKeyResultId}></lightning-input-field>
+                        <lightning-input-field field-name="FirstName"></lightning-input-field>
+                        <lightning-input-field field-name="LastName"></lightning-input-field>
+                        <lightning-input-field field-name="Company"></lightning-input-field>
+                        <lightning-input-field field-name="Phone"></lightning-input-field>
+                        <lightning-input-field field-name="Email"></lightning-input-field>
+                        <lightning-input-field field-name="Title"></lightning-input-field>
+                        <lightning-input-field field-name="LeadSource"></lightning-input-field>
+                        <lightning-input-field field-name="Status"></lightning-input-field>
+                        <lightning-input-field field-name="Rating"></lightning-input-field>
+                        <lightning-input-field field-name="Industry"></lightning-input-field>
+                        <lightning-input-field field-name="OwnerId"></lightning-input-field>
+                        
+                        <div class="slds-m-top_medium">
+                            <lightning-button variant="neutral" label="Cancel" onclick={closeNewLeadModal}></lightning-button>
+                            <lightning-button variant="brand" type="submit" label="Save"></lightning-button>
+                        </div>
+                    </lightning-record-edit-form>
+                </div>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+    
+    <template if:true={isNewGoogleReviewModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeNewGoogleReviewModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">New Google Review</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-record-edit-form object-api-name="Google_Review__c" onsuccess={handleGoogleReviewSuccess}>
+                        <lightning-messages></lightning-messages>
+                        <lightning-input-field field-name="Name"></lightning-input-field>
+                        <lightning-input-field field-name="Key_Result__c" value={selectedKeyResultId}></lightning-input-field>
+                        <lightning-input-field field-name="Review_Details__c"></lightning-input-field>
+                        <lightning-input-field field-name="Rating__c"></lightning-input-field>
+                        <div class="slds-m-top_medium">
+                            <lightning-button variant="neutral" label="Cancel" onclick={closeNewGoogleReviewModal}></lightning-button>
+                            <lightning-button variant="brand" type="submit" label="Save"></lightning-button>
+                        </div>
+                    </lightning-record-edit-form>
+                </div>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+
+    <template if:true={isNewEventModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeNewEventModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">New Event</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-record-edit-form object-api-name="Event" onsuccess={handleEventSuccess}>
+                        <lightning-messages></lightning-messages>
+                        <lightning-input-field field-name="Key_Result__c" value={selectedKeyResultId}></lightning-input-field>
+                        <lightning-input-field field-name="Event_Type__c"></lightning-input-field>
+                    
+                        <div class="slds-m-top_medium">
+                            <lightning-button variant="neutral" label="Cancel" onclick={closeNewEventModal}></lightning-button>
+                            <lightning-button variant="brand" type="submit" label="Save"></lightning-button>
+                        </div>
+                    </lightning-record-edit-form>
+                </div>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+    
+    <template if:true={isNewContractModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeNewContractModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">New Contract</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-record-edit-form object-api-name="Contract" onsuccess={handleContractSuccess}>
+                        <lightning-messages></lightning-messages>
+                        <lightning-input-field field-name="Key_Result__c" value={selectedKeyResultId}></lightning-input-field>
+                        <lightning-input-field field-name="Contract_Type__c"></lightning-input-field>
+                        <lightning-input-field field-name="ContractNumber"></lightning-input-field>
+                        <lightning-input-field field-name="AccountId"></lightning-input-field>
+                        <lightning-input-field field-name="OwnerExpirationNotice"></lightning-input-field>
+                        <lightning-input-field field-name="StartDate"></lightning-input-field>
+                        <lightning-input-field field-name="EndDate"></lightning-input-field>
+                        <lightning-input-field field-name="Status"></lightning-input-field>
+                        <lightning-input-field field-name="CompanySigned"></lightning-input-field>
+                        <lightning-input-field field-name="CustomerSigned"></lightning-input-field>
+                        <lightning-input-field field-name="OwnerId"></lightning-input-field>
+
+                        
+                        <div class="slds-m-top_medium">
+                            <lightning-button variant="neutral" label="Cancel" onclick={closeNewContractModal}></lightning-button>
+                            <lightning-button variant="brand" type="submit" label="Save"></lightning-button>
+                        </div>
+                    </lightning-record-edit-form>
+                </div>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+    
+    <template if:true={isNewSurveyModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeNewSurveyModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">New Survey</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-record-edit-form object-api-name="Survey__c" onsuccess={handleSurveySuccess}>
+                        <lightning-messages></lightning-messages>
+                        <lightning-input-field field-name="Name"></lightning-input-field>
+                        <lightning-input-field field-name="Key_Result__c" value={selectedKeyResultId}></lightning-input-field>
+                        <lightning-input-field field-name="Survey_Details__c"></lightning-input-field>
+                        <lightning-input-field field-name="Survey_Status__c"></lightning-input-field>
+                        <div class="slds-m-top_medium">
+                            <lightning-button variant="neutral" label="Cancel" onclick={closeNewSurveyModal}></lightning-button>
+                            <lightning-button variant="brand" type="submit" label="Save"></lightning-button>
+                        </div>
+                    </lightning-record-edit-form>
+                </div>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+
+    <template if:true={isNewCaseStudyModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeNewCaseStudyModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">New Case Study</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-record-edit-form object-api-name="Case_Study__c" onsuccess={handleCaseStudySuccess}>
+                        <lightning-messages></lightning-messages>
+                        <lightning-input-field field-name="Name"></lightning-input-field>
+                        <lightning-input-field field-name="Key_Result__c" value={selectedKeyResultId}></lightning-input-field>
+                        <lightning-input-field field-name="Case_Study_Details__c"></lightning-input-field>
+                        <lightning-input-field field-name="Status__c"></lightning-input-field>
+                        <div class="slds-m-top_medium">
+                            <lightning-button variant="neutral" label="Cancel" onclick={closeNewCaseStudyModal}></lightning-button>
+                            <lightning-button variant="brand" type="submit" label="Save"></lightning-button>
+                        </div>
+                    </lightning-record-edit-form>
+                </div>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+
+    <template if:true={isNewCallModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header custom-modal-header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" aria-label="Close modal" onclick={closeNewCallModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close modal" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 class="slds-text-heading_medium">New Call</h2>
+                </header>
+                <div class="slds-modal__content custom-modal-content">
+                    <lightning-record-edit-form object-api-name="Task" onsuccess={handleCallSuccess}>
+                        <lightning-messages></lightning-messages>
+                        <lightning-input-field field-name="Key_Result__c" value={selectedKeyResultId}></lightning-input-field>
+                        <lightning-input-field field-name="Call_Type__c"></lightning-input-field>
+        
+                        <div class="slds-m-top_medium">
+                            <lightning-button variant="neutral" label="Cancel" onclick={closeNewCallModal}></lightning-button>
+                            <lightning-button variant="brand" type="submit" label="Save"></lightning-button>
+                        </div>
+                    </lightning-record-edit-form>
+                </div>
+            </div>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </section>
+    </template>
+
+</template>

@@ -1,0 +1,16 @@
+<template>
+    <lightning-card>
+        <div class="slds-m-around_medium">
+            <lightning-button label="New Call" onclick={handleNewCall}></lightning-button>
+            <lightning-button label="New Event" onclick={handleNewEvent}></lightning-button>
+            <template if:true={activities}>
+                <template for:each={activities} for:item="activity">
+                    <p key={activity.Id}>{activity.Subject}</p>
+                </template>
+            </template>
+            <template if:true={error}>
+                <p>{error}</p>
+            </template>
+        </div>
+    </lightning-card>
+</template>
