@@ -609,25 +609,45 @@
                         <lightning-messages></lightning-messages>
                         <lightning-input-field field-name="Name"></lightning-input-field>
                         <lightning-input-field field-name="Objective__c" value={selectedObjectiveId}></lightning-input-field>
-                        <lightning-input-field field-name="Trackable_Objects__c"></lightning-input-field>
-                        <lightning-input-field field-name="Lead_Target__c"></lightning-input-field>
-                        <lightning-input-field field-name="Lead_Completed__c"></lightning-input-field>
-                        <lightning-input-field field-name="Opportunity_Target__c"></lightning-input-field>
-                        <lightning-input-field field-name="Opportunity_Completed__c"></lightning-input-field>
-                        <lightning-input-field field-name="Review_Target__c"></lightning-input-field>
-                        <lightning-input-field field-name="Review_Completed__c"></lightning-input-field>
-                        <lightning-input-field field-name="Google_Review_Target__c"></lightning-input-field>
-                        <lightning-input-field field-name="Google_Review_Completed__c"></lightning-input-field>
-                        <lightning-input-field field-name="Case_Study_Target__c"></lightning-input-field>
-                        <lightning-input-field field-name="Case_Study_Completed__c"></lightning-input-field>
-                        <lightning-input-field field-name="Survey_Target__c"></lightning-input-field>
-                        <lightning-input-field field-name="Survey_Completed__c"></lightning-input-field>
-                        <lightning-input-field field-name="Contract_Target__c"></lightning-input-field>
-                        <lightning-input-field field-name="Contract_Completed__c"></lightning-input-field>
-                        <lightning-input-field field-name="Call_Target__c"></lightning-input-field>
-                        <lightning-input-field field-name="Call_Completed__c"></lightning-input-field>
-                        <lightning-input-field field-name="Event_Target__c"></lightning-input-field>
-                        <lightning-input-field field-name="Event_Completed__c"></lightning-input-field>
+                        <lightning-input-field field-name="Trackable_Objects__c" onchange={handleTrackableObjectsChange}></lightning-input-field>
+    
+                        <template if:true={showLeadFields}>
+                            <lightning-input-field field-name="Lead_Target__c"></lightning-input-field>
+                            <lightning-input-field field-name="Lead_Completed__c"></lightning-input-field>
+                        </template>
+                        <template if:true={showOpportunityFields}>
+                            <lightning-input-field field-name="Opportunity_Target__c"></lightning-input-field>
+                            <lightning-input-field field-name="Opportunity_Completed__c"></lightning-input-field>
+                        </template>
+                        <template if:true={showReviewFields}>
+                            <lightning-input-field field-name="Review_Target__c"></lightning-input-field>
+                            <lightning-input-field field-name="Review_Completed__c"></lightning-input-field>
+                        </template>
+                        <template if:true={showGoogleReviewFields}>
+                            <lightning-input-field field-name="Google_Review_Target__c"></lightning-input-field>
+                            <lightning-input-field field-name="Google_Review_Completed__c"></lightning-input-field>
+                        </template>
+                        <template if:true={showCaseStudyFields}>
+                            <lightning-input-field field-name="Case_Study_Target__c"></lightning-input-field>
+                            <lightning-input-field field-name="Case_Study_Completed__c"></lightning-input-field>
+                        </template>
+                        <template if:true={showSurveyFields}>
+                            <lightning-input-field field-name="Survey_Target__c"></lightning-input-field>
+                            <lightning-input-field field-name="Survey_Completed__c"></lightning-input-field>
+                        </template>
+                        <template if:true={showContractFields}>
+                            <lightning-input-field field-name="Contract_Target__c"></lightning-input-field>
+                            <lightning-input-field field-name="Contract_Completed__c"></lightning-input-field>
+                        </template>
+                        <template if:true={showCallFields}>
+                            <lightning-input-field field-name="Call_Target__c"></lightning-input-field>
+                            <lightning-input-field field-name="Call_Completed__c"></lightning-input-field>
+                        </template>
+                        <template if:true={showEventFields}>
+                            <lightning-input-field field-name="Event_Target__c"></lightning-input-field>
+                            <lightning-input-field field-name="Event_Completed__c"></lightning-input-field>
+                        </template>
+                        
                         <div class="slds-m-top_medium">
                             <lightning-button variant="neutral" label="Cancel" onclick={closeNewKeyResultModal}></lightning-button>
                             <lightning-button variant="brand" type="submit" label="Save"></lightning-button>
@@ -638,7 +658,7 @@
             <div class="slds-backdrop slds-backdrop_open"></div>
         </section>
     </template>
-
+    
    
     <template if:true={isNewOpportunityModalOpen}>
         <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open custom-modal">
@@ -719,8 +739,6 @@
                         <lightning-messages></lightning-messages>
                         <lightning-input-field field-name="Name"></lightning-input-field>
                         <lightning-input-field field-name="Key_Result__c" value={selectedKeyResultId}></lightning-input-field>
-                        <lightning-input-field field-name="FirstName"></lightning-input-field>
-                        <lightning-input-field field-name="LastName"></lightning-input-field>
                         <lightning-input-field field-name="Company"></lightning-input-field>
                         <lightning-input-field field-name="Phone"></lightning-input-field>
                         <lightning-input-field field-name="Email"></lightning-input-field>

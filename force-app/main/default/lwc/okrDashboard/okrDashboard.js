@@ -44,6 +44,15 @@ export default class OkrDashboard extends NavigationMixin(LightningElement) {
     @track isSelectKeyResultForCaseStudyModalOpen = false;
     @track isSelectObjectiveForCallModalOpen = false;
     @track isSelectKeyResultForCallModalOpen = false;
+    @track showLeadFields = false;
+    @track showOpportunityFields = false;
+    @track showReviewFields = false;
+    @track showGoogleReviewFields = false;
+    @track showCaseStudyFields = false;
+    @track showSurveyFields = false;
+    @track showContractFields = false;
+    @track showCallFields = false;
+    @track showEventFields = false;
     @track error;
     wiredObjectivesResult;
 
@@ -106,6 +115,19 @@ export default class OkrDashboard extends NavigationMixin(LightningElement) {
         this.selectedKeyResultId = event.detail.value;
     }
 
+    handleTrackableObjectsChange(event) {
+        const selectedValues = event.detail.value;
+        this.showLeadFields = selectedValues.includes('Leads');
+        this.showOpportunityFields = selectedValues.includes('Opportunities');
+        this.showReviewFields = selectedValues.includes('Reviews');
+        this.showGoogleReviewFields = selectedValues.includes('Google Reviews');
+        this.showCaseStudyFields = selectedValues.includes('Case Studies');
+        this.showSurveyFields = selectedValues.includes('Surveys');
+        this.showContractFields = selectedValues.includes('Contracts');
+        this.showCallFields = selectedValues.includes('Calls');
+        this.showEventFields = selectedValues.includes('Events');
+    }
+
     openNewObjectiveModal() {
         this.isNewObjectiveModalOpen = true;
     }
@@ -158,6 +180,8 @@ export default class OkrDashboard extends NavigationMixin(LightningElement) {
     handleNewOpportunity() {
         if (this.selectedKeyResultId) {
             this.isNewOpportunityModalOpen = true;
+            this.closeSelectObjectiveForOpportunityModal();
+            this.closeSelectKeyResultForOpportunityModal();
         }
     }
 
@@ -191,6 +215,8 @@ export default class OkrDashboard extends NavigationMixin(LightningElement) {
     handleNewReview() {
         if (this.selectedKeyResultId) {
             this.isNewReviewModalOpen = true;
+            this.closeSelectObjectiveForReviewModal();
+            this.closeSelectKeyResultForReviewModal();
         }
     }
 
@@ -224,6 +250,8 @@ export default class OkrDashboard extends NavigationMixin(LightningElement) {
     handleNewLead() {
         if (this.selectedKeyResultId) {
             this.isNewLeadModalOpen = true;
+            this.closeSelectObjectiveForLeadModal();
+            this.closeSelectKeyResultForLeadModal();
         }
     }
 
@@ -257,6 +285,8 @@ export default class OkrDashboard extends NavigationMixin(LightningElement) {
     handleNewGoogleReview() {
         if (this.selectedKeyResultId) {
             this.isNewGoogleReviewModalOpen = true;
+            this.closeSelectObjectiveForGoogleReviewModal();
+            this.closeSelectKeyResultForGoogleReviewModal();
         }
     }
 
@@ -290,6 +320,8 @@ export default class OkrDashboard extends NavigationMixin(LightningElement) {
     handleNewEvent() {
         if (this.selectedKeyResultId) {
             window.open(`/lightning/o/Event/new?defaultFieldValues=Key_Result__c=${this.selectedKeyResultId}`, '_blank');
+            this.closeSelectObjectiveForEventModal();
+            this.closeSelectKeyResultForEventModal();
         }
     }
 
@@ -314,6 +346,8 @@ export default class OkrDashboard extends NavigationMixin(LightningElement) {
     handleNewContract() {
         if (this.selectedKeyResultId) {
             this.isNewContractModalOpen = true;
+            this.closeSelectObjectiveForContractModal();
+            this.closeSelectKeyResultForContractModal();
         }
     }
 
@@ -347,6 +381,8 @@ export default class OkrDashboard extends NavigationMixin(LightningElement) {
     handleNewSurvey() {
         if (this.selectedKeyResultId) {
             this.isNewSurveyModalOpen = true;
+            this.closeSelectObjectiveForSurveyModal();
+            this.closeSelectKeyResultForSurveyModal();
         }
     }
 
@@ -380,6 +416,8 @@ export default class OkrDashboard extends NavigationMixin(LightningElement) {
     handleNewCaseStudy() {
         if (this.selectedKeyResultId) {
             this.isNewCaseStudyModalOpen = true;
+            this.closeSelectObjectiveForCaseStudyModal();
+            this.closeSelectKeyResultForCaseStudyModal();
         }
     }
 
@@ -413,9 +451,10 @@ export default class OkrDashboard extends NavigationMixin(LightningElement) {
     handleNewCall() {
         if (this.selectedKeyResultId) {
             window.open(`/lightning/o/Task/new?defaultFieldValues=Key_Result__c=${this.selectedKeyResultId}`, '_blank');
+            this.closeSelectObjectiveForCallModal();
+            this.closeSelectKeyResultForCallModal();
         }
     }
-    
 
     handleObjectiveSuccess(event) {
         this.closeNewObjectiveModal();
